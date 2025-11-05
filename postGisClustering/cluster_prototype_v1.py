@@ -7,7 +7,7 @@ from folium import features
 from branca.colormap import LinearColormap
 from folium.plugins import HeatMap
 
-#! run this command: panel serve prototype_v2.py --autoreload --show
+#! run this command: panel serve prototype_v1.py --autoreload --show
 
 pn.extension()
 
@@ -175,7 +175,7 @@ def refresh_heatmap(event):
     map_panel.object = m._repr_html_()
 
 
-refresh_button.on_click(refresh_heatmap)
+refresh_button.on_click(refresh)
 
 ui = pn.Column(
     pn.pane.Markdown("## 🚖 Porto Taxi Hotspot Explorer"),
