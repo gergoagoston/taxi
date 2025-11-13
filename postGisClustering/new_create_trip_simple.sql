@@ -2,8 +2,6 @@ CREATE TABLE trip_simple AS
 SELECT
   trip_id,
   start_time AS time,
-  polyline_json -> 0 AS first_coord,
-  polyline_json -> (jsonb_array_length(polyline_json) - 1) AS last_coord,
 
   -- pickup point (longitude, latitude)
   ST_SetSRID(
@@ -21,6 +19,12 @@ SELECT
       ((polyline_json -> (jsonb_array_length(polyline_json) - 1))::json->>1)::numeric
     ),
     4326
-  ) AS dropoff
+  ) AS dropoff,
+
+  -- is_weekend flag
+  CASE
+    WHEN EXTRACT(DOW FROM start_time) IN (0, 6) THEN TRUE
+    ELSE FALSE
+  END AS is_weekend
 
 FROM trip;

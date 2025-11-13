@@ -145,7 +145,7 @@ def new_build_query(mode, year, h1, h2):
     ),
     clusters AS (
         SELECT
-            ST_ClusterKMeans(geom, 600) OVER () AS cid,
+            ST_ClusterKMeans(geom, 800) OVER () AS cid,
             geom
         FROM pts
     ),
@@ -182,7 +182,7 @@ def refresh(_):
     year = year_selector.value
     h1, h2 = time_slider.value
 
-    query = build_query(mode, year, h1, h2)
+    query = new_build_query(mode, year, h1, h2)
 
     conn = psycopg2.connect(**DB_CONFIG)
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
