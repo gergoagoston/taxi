@@ -34,7 +34,7 @@ def build_query(mode, start_date, end_date, h1, h2, day_types):
 
     bbox_filter = "AND ST_X({geom}) BETWEEN -8.75 AND -8.50 AND ST_Y({geom}) BETWEEN 41.0 AND 41.3"
 
-    if mode == "both":
+    if mode == "Both":
         return f"""
         SELECT ST_Y(geom) AS lat, ST_X(geom) AS lon
         FROM (

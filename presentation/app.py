@@ -128,6 +128,10 @@ def refresh(event=None):
 
 # --- Bind Callbacks ---
 refresh_button.on_click(refresh)
+# Auto-refresh when map style changes
+map_style_selector.param.watch(refresh, 'value')
+mode_selector.param.watch(refresh, 'value')
+
 
 # --- UI LAYOUT ---
 controls = pn.Column(
