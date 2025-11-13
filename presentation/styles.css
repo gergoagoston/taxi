@@ -1,0 +1,62 @@
+/* style.css */
+
+html, body, .bk-root {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    overflow: hidden !important;
+    /* Background color will be set by the app.py script */
+}
+
+.fullscreen-map iframe {
+    height: 100vh !important;
+    width: 100vw !important;
+    border: none !important;
+}
+
+.floating-ui {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 9999;
+    background: rgba(20, 20, 20, 0.75);
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: white;
+    backdrop-filter: blur(6px);
+}
+
+.controls-title {
+    color: white !important;
+    font-weight: 600;
+}
+
+.theme-title {
+    color: white !important;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+/* --- REPLACEMENT FOR INLINE WIDGET STYLES --- */
+
+/* Targets: "Map Style", "Mode", "Start Date", etc. */
+.floating-ui .bk-input-label {
+    color: white !important;
+    font-weight: 500;
+}
+
+/* Targets: "Light", "Dark", "Pickup", "Weekday", etc. */
+.floating-ui .bk-group-item label {
+    color: white !important;
+}
+
+/* Targets the slider's "7 - 11" text */
+.floating-ui .bk-slider-title {
+     color: white !important;
+}
+
+/* Targets the slider bar color */
+.floating-ui .noUi-connect {
+    background: #007BFF !important; /* A nice bright blue */
+}
