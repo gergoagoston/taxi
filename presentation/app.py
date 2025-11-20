@@ -79,7 +79,12 @@ def refresh(event=None):
         return
 
     # --- Base map ---
-    m = folium.Map(location=[41.15, -8.6], zoom_start=12, tiles=map_style)
+    m = folium.Map(
+        location=[41.15, -8.6],
+        zoom_start=12,
+        tiles=map_style,
+        zoom_control=False,
+    )
     
     # --- Grid layer ---
     grid_query = build_grid_query(mode, start, end, h1, h2, day_types, cell_size=0.003)

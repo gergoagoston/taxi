@@ -83,3 +83,8 @@ html, body, .bk-root {
     color: black;
     backdrop-filter: blur(6px);
 }
+
+.legend-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
