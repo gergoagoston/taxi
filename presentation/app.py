@@ -147,9 +147,24 @@ controls = pn.Column(
     css_classes=["floating-ui"],
 )
 
+legend = pn.Column(
+    pn.pane.Markdown("### Legend", css_classes=["legend-title"]),
+    pn.pane.HTML(
+        """
+    <div style="width: 200px; height: 20px; background: linear-gradient(to right, pink, blue, green, yellow, orange, red); border: 1px solid black;"></div>
+    <div style="display: flex; justify-content: space-between;">
+        <span>10+</span>
+        <span>10000+</span>
+    </div>
+    """,
+        css_classes=["legend-content"],
+    ),
+    css_classes=["floating-legend", "floating-legend-light" if map_style_selector.value != "CartoDB dark_matter" else "floating-legend-dark"],
+)
+
 # Load the map when the app first starts
 pn.state.onload(refresh) 
 
 # Combine the map and controls into the final UI
-ui = pn.Row(map_panel, controls, sizing_mode="stretch_both")
+ui = pn.Row(map_panel, controls, legend, sizing_mode="stretch_both")
 ui.servable()

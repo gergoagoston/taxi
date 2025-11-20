@@ -73,3 +73,20 @@ map_panel = pn.pane.HTML(
     sizing_mode="stretch_both",
     css_classes=["fullscreen-map"],
 )
+
+legend_panel = pn.pane.HTML(
+    """
+<div style="position: absolute; bottom: 10px; left: 10px; background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px;">
+    <h4>Legend</h4>
+    <div style="width: 200px; height: 20px; background: linear-gradient(to right, blue, cyan, lime, yellow, red);"></div>
+    <div style="display: flex; justify-content: space-between;">
+        <span>Low</span>
+        <span>High</span>
+    </div>
+</div>
+""",
+    sizing_mode="fixed",
+    width=220,
+    height=80,
+    css_classes=["legend-panel"],
+)
