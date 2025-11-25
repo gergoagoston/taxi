@@ -1,16 +1,20 @@
 # database.py
 """Handles all database connections and query building."""
 
-import psycopg2
+from sqlalchemy import create_engine
 import pandas as pd
 from config import DB_CONFIG
 
 def fetch_data(query):
     """Connects to the DB, executes a query, and returns a DataFrame."""
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        df = pd.read_sql(query, conn)
-        conn.close()
+        # Create SQLAlchemy engine
+        engine = create_engine(
+            f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@"
+            f"{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['dbname']}"
+        )
+        df = pd.read_sql(query, engine)
+        engine.dispose()
         return df
     except Exception as e:
         print(f"Database connection error: {e}")
@@ -70,7 +74,7 @@ def build_grid_query(mode, start_date, end_date, h1, h2, day_types, cell_size=0.
     else:
         day_filter = ""
 
-    if mode == "both":
+    if mode == "Both":
         return f"""
         SELECT lon_snapped AS lon, lat_snapped AS lat, COUNT(*) AS trips
         FROM (
@@ -95,7 +99,7 @@ def build_grid_query(mode, start_date, end_date, h1, h2, day_types, cell_size=0.
         ORDER BY trips DESC
         """
     else:
-        geom = mode
+        geom = mode.lower()
         return f"""
         SELECT (ROUND(ST_X({geom})/{cell_size})*{cell_size})::double precision AS lon,
                (ROUND(ST_Y({geom})/{cell_size})*{cell_size})::double precision AS lat,

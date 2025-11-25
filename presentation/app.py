@@ -27,6 +27,18 @@ from database import fetch_data, build_query, build_grid_query
 pn.extension(raw_css=[open("styles.css").read()])
 pn.config.theme = 'dark'
 
+# Create a dynamic legend content pane
+legend_content = pn.pane.HTML(
+    """
+    <div style="width: 200px; height: 20px; background: linear-gradient(to right, pink, blue, green, yellow, orange, red); border: 1px solid black;"></div>
+    <div style="display: flex; justify-content: space-between;">
+        <span>10+</span>
+        <span>10000+</span>
+    </div>
+    """,
+    css_classes=["legend-content"],
+)
+
 # --- MAP UPDATE CALLBACK (The "Controller") ---
 def refresh(event=None):
     map_style = map_style_selector.value
@@ -90,7 +102,9 @@ def refresh(event=None):
     grid_query = build_grid_query(mode, start, end, h1, h2, day_types, cell_size=0.003)
     grid_df = fetch_data(grid_query) # Use our helper again
 
+    max_trips = 0
     if not grid_df.empty:
+        max_trips = int(grid_df["trips"].max())
         features = []
         half = 0.0015
         for _, row in grid_df.iterrows():
@@ -120,8 +134,18 @@ def refresh(event=None):
 
     # --- Heatmap ---
     heat_data = df[["lat", "lon"]].values.tolist()
-    colormap = {0.0: 'pink', 0.3: 'blue', 0.4: 'green', 0.55: 'yellow', 0.75: 'orange', 1.0: 'red'}
+    colormap = {0.1: 'pink', 0.3: 'blue', 0.4: 'green', 0.55: 'yellow', 0.75: 'orange', 1.0: 'red'}
     HeatMap(heat_data, radius=20, min_opacity=0.1, max_opacity=0.9, gradient=colormap).add_to(m)
+
+    # --- Update Legend ---
+    if max_trips > 0:
+        legend_content.object = f"""
+        <div style="width: 200px; height: 20px; background: linear-gradient(to right, pink, blue, green, yellow, orange, red); border: 1px solid black;"></div>
+        <div style="display: flex; justify-content: space-between;">
+            <span>10+</span>
+            <span>{max_trips:,}</span>
+        </div>
+        """
 
     # --- Render Map ---
     map_html = m._repr_html_()
@@ -154,16 +178,7 @@ controls = pn.Column(
 
 legend = pn.Column(
     pn.pane.Markdown("### Legend", css_classes=["legend-title"]),
-    pn.pane.HTML(
-        """
-    <div style="width: 200px; height: 20px; background: linear-gradient(to right, pink, blue, green, yellow, orange, red); border: 1px solid black;"></div>
-    <div style="display: flex; justify-content: space-between;">
-        <span>10+</span>
-        <span>10000+</span>
-    </div>
-    """,
-        css_classes=["legend-content"],
-    ),
+    legend_content,
     css_classes=["floating-legend", "floating-legend-light" if map_style_selector.value != "CartoDB dark_matter" else "floating-legend-dark"],
 )
 
