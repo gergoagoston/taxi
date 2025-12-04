@@ -13,7 +13,10 @@ map_style_selector = pn.widgets.RadioButtonGroup(
 )
 
 mode_selector = pn.widgets.RadioButtonGroup(
-    name="Mode", options=["Pickup", "Dropoff", "Both"], button_type="primary"
+    name='Mode',
+    options=['Pickup', 'Dropoff', 'Both'],
+    value='Pickup',
+    button_type='primary'
 )
 
 start_date = pn.widgets.DatePicker(
@@ -64,29 +67,62 @@ day_type_selector = pn.widgets.CheckBoxGroup(
 
 refresh_button = pn.widgets.Button(name="Recalculate Map", button_type="primary")
 
-map_panel = pn.pane.HTML(
-    """
-<div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-    <h3>Select parameters to load the heatmap...</h3>
-</div>
-""",
-    sizing_mode="stretch_both",
-    css_classes=["fullscreen-map"],
+# --- Legend Components ---
+# //////////////////////
+legend_title = pn.pane.Markdown(
+    "### Legend",
+    styles={"color": "white"},
+    css_classes=["legend-title"]
 )
 
-legend_panel = pn.pane.HTML(
-    """
-<div style="position: absolute; bottom: 10px; left: 10px; background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px;">
-    <h4>Legend</h4>
-    <div style="width: 200px; height: 20px; background: linear-gradient(to right, blue, cyan, lime, yellow, red);"></div>
+def _default_legend_html():
+    return """
+    <div style="width: 200px; height: 20px; background: linear-gradient(to right, pink, blue, green, yellow, orange, red); border: 1px solid black;"></div>
     <div style="display: flex; justify-content: space-between;">
-        <span>Low</span>
-        <span>High</span>
+        <span>10+</span>
+        <span>10,000+</span>
     </div>
-</div>
-""",
-    sizing_mode="fixed",
-    width=220,
-    height=80,
-    css_classes=["legend-panel"],
+    """
+
+legend_content = pn.pane.HTML(
+    _default_legend_html(),
+    styles={"color": "white"},
+    css_classes=["legend-content"],
 )
+
+legend = pn.Column(
+    legend_title,
+    legend_content,
+    css_classes=["floating-legend", "floating-legend-dark"],
+)
+
+def reset_legend():
+    legend_content.object = _default_legend_html()
+    # Force a repaint in Panel
+    try:
+        legend_content.param.trigger('object')
+    except Exception:
+        pass
+
+def update_legend(max_trips):
+    rounded_max = 10
+    if max_trips > 0:
+        if max_trips >= 1000:
+            rounded_max = (max_trips // 1000) * 1000
+        elif max_trips >= 100:
+            rounded_max = (max_trips // 100) * 100
+        else:
+            rounded_max = (max_trips // 10) * 10
+
+    legend_content.object = f"""
+    <div style="width: 200px; height: 20px; background: linear-gradient(to right, pink, blue, green, yellow, orange, red); border: 1px solid black;"></div>
+    <div style="display: flex; justify-content: space-between;">
+        <span>10+</span>
+        <span>{rounded_max:,}+</span>
+    </div>
+    """
+    # Force a repaint in Panel
+    try:
+        legend_content.param.trigger('object')
+    except Exception:
+        pass

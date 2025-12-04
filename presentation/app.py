@@ -18,25 +18,26 @@ from folium.plugins import HeatMap
 # Local imports from our new files
 from widgets import (
     map_style_selector, mode_selector, start_date, end_date,
-    hour_selector, day_type_selector, refresh_button, map_panel
+    hour_selector, day_type_selector, refresh_button,
 )
 from database import fetch_data, build_query, build_grid_query
 
 # --- APP CONFIG & STYLING ---
-# Load the external CSS file
-pn.extension(raw_css=[open("styles.css").read()])
+with open("styles.css") as f:
+    css_content = f.read()
+
+pn.extension(raw_css=[css_content])
 pn.config.theme = 'dark'
 
-# Create a dynamic legend content pane
-legend_content = pn.pane.HTML(
+map_panel = pn.pane.HTML(
     """
-    <div style="width: 200px; height: 20px; background: linear-gradient(to right, pink, blue, green, yellow, orange, red); border: 1px solid black;"></div>
-    <div style="display: flex; justify-content: space-between;">
-        <span>10+</span>
-        <span>10000+</span>
+    <div style="display: flex; justify-content: center; align-items: center; 
+                 height: 100vh; color: white; background-color: #181818;">
+        <h3>Processing...</h3>
     </div>
     """,
-    css_classes=["legend-content"],
+    sizing_mode="stretch_both",
+    height=800
 )
 
 # --- MAP UPDATE CALLBACK (The "Controller") ---
@@ -61,13 +62,16 @@ def refresh(event=None):
     
     text_color = "white" if bg_color == "#181818" else "black"
     
-    map_panel.object = f"""
+    # Show loading
+    loading_html = f"""
         {js_script}
         <div style="display: flex; justify-content: center; align-items: center; 
                      height: 100vh; color: {text_color};">
             <h3>Processing...</h3>
         </div>
     """
+    map_panel.object = loading_html
+    print("Loading message set")
 
     # --- Get values from widgets ---
     mode = mode_selector.value
@@ -75,10 +79,12 @@ def refresh(event=None):
     end = end_date.value
     h1, h2 = hour_selector.value
     day_types = day_type_selector.value
+    print(f"Mode={mode}, Dates={start} to {end}, Hours={h1}-{h2}, Days={day_types}")
 
     # --- Fetch Data ---
     query = build_query(mode, start, end, h1, h2, day_types)
-    df = fetch_data(query) # Use our new helper function
+    df = fetch_data(query)
+    print(f"Got {len(df)} rows")
 
     if df.empty:
         map_panel.object = f"""
@@ -100,7 +106,7 @@ def refresh(event=None):
     
     # --- Grid layer ---
     grid_query = build_grid_query(mode, start, end, h1, h2, day_types, cell_size=0.003)
-    grid_df = fetch_data(grid_query) # Use our helper again
+    grid_df = fetch_data(grid_query)
 
     max_trips = 0
     if not grid_df.empty:
@@ -136,16 +142,7 @@ def refresh(event=None):
     heat_data = df[["lat", "lon"]].values.tolist()
     colormap = {0.1: 'pink', 0.3: 'blue', 0.4: 'green', 0.55: 'yellow', 0.75: 'orange', 1.0: 'red'}
     HeatMap(heat_data, radius=20, min_opacity=0.1, max_opacity=0.9, gradient=colormap).add_to(m)
-
-    # --- Update Legend ---
-    if max_trips > 0:
-        legend_content.object = f"""
-        <div style="width: 200px; height: 20px; background: linear-gradient(to right, pink, blue, green, yellow, orange, red); border: 1px solid black;"></div>
-        <div style="display: flex; justify-content: space-between;">
-            <span>10+</span>
-            <span>{max_trips:,}</span>
-        </div>
-        """
+    print("Rendering HTML...")
 
     # --- Render Map ---
     map_html = m._repr_html_()
@@ -154,13 +151,12 @@ def refresh(event=None):
     {map_html}
     """
     map_panel.object = map_with_bg
+    print("Map object set!\n")
 
 # --- Bind Callbacks ---
 refresh_button.on_click(refresh)
-# Auto-refresh when map style changes
 map_style_selector.param.watch(refresh, 'value')
 mode_selector.param.watch(refresh, 'value')
-
 
 # --- UI LAYOUT ---
 controls = pn.Column(
@@ -176,15 +172,9 @@ controls = pn.Column(
     css_classes=["floating-ui"],
 )
 
-legend = pn.Column(
-    pn.pane.Markdown("### Legend", css_classes=["legend-title"]),
-    legend_content,
-    css_classes=["floating-legend", "floating-legend-light" if map_style_selector.value != "CartoDB dark_matter" else "floating-legend-dark"],
-)
-
 # Load the map when the app first starts
 pn.state.onload(refresh) 
 
 # Combine the map and controls into the final UI
-ui = pn.Row(map_panel, controls, legend, sizing_mode="stretch_both")
+ui = pn.Row(map_panel, controls, sizing_mode="stretch_both")
 ui.servable()

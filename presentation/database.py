@@ -25,7 +25,7 @@ def build_query(mode, start_date, end_date, h1, h2, day_types):
 
     date_filter = f"""
         AND time >= '{start_date}'
-        AND time <= '{end_date}'
+        AND time < (DATE '{end_date}' + INTERVAL '1 day')
         AND EXTRACT(HOUR FROM time) BETWEEN {h1} AND {h2}
     """
 
@@ -63,7 +63,7 @@ def build_grid_query(mode, start_date, end_date, h1, h2, day_types, cell_size=0.
 
     date_filter = f"""
         AND time >= '{start_date}'
-        AND time <= '{end_date}'
+        AND time < (DATE '{end_date}' + INTERVAL '1 day')
         AND EXTRACT(HOUR FROM time) BETWEEN {h1} AND {h2}
     """
 
