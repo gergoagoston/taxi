@@ -1,3 +1,4 @@
+import os
 import panel as pn
 import psycopg2
 import pandas as pd
@@ -11,7 +12,7 @@ pn.extension()
 DB_CONFIG = {
     "dbname": "taxis_porto",
     "user": "postgres",
-    "password": "postgres",
+    "password": os.getenv("POSTGRES_PASSWORD", ""),
     "host": "127.0.0.1",
     "port": 5433,
 }

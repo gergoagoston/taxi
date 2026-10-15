@@ -1,1 +1,16 @@
-/venv
+/venv/
+/.venv/
+
+# Python cache and build files
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and generated local output
+*.log
+/.trips_map.html

@@ -21,6 +21,7 @@ from widgets import (
     hour_selector, day_type_selector, refresh_button,
 )
 from database import fetch_data, build_query, build_grid_query
+from config import CARTO_API_KEY
 
 # --- APP CONFIG & STYLING ---
 with open("styles.css") as f:
@@ -97,12 +98,32 @@ def refresh(event=None):
         return
 
     # --- Base map ---
+    # CARTO now requires an API key for its Positron/Dark Matter tiles.
+    # Without a key, use OpenStreetMap so the app remains usable out of the box.
+    if CARTO_API_KEY:
+        carto_style = "dark_all" if map_style == "CartoDB dark_matter" else "light_all"
+        tile_url = (
+            f"https://basemaps.cartocdn.com/rastertiles/{carto_style}/"
+            f"{{z}}/{{x}}/{{y}}.png?key={CARTO_API_KEY}"
+        )
+        tile_attribution = "© OpenStreetMap contributors © CARTO"
+        tile_name = map_style
+    else:
+        tile_url = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        tile_attribution = "© OpenStreetMap contributors"
+        tile_name = "OpenStreetMap"
+
     m = folium.Map(
         location=[41.15, -8.6],
         zoom_start=12,
-        tiles=map_style,
+        tiles=None,
         zoom_control=False,
     )
+    folium.TileLayer(
+        tiles=tile_url,
+        attr=tile_attribution,
+        name=tile_name,
+    ).add_to(m)
     
     # --- Grid layer ---
     grid_query = build_grid_query(mode, start, end, h1, h2, day_types, cell_size=0.003)

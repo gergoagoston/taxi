@@ -3,13 +3,14 @@
 Plot 1000 taxi trajectories from PostGIS onto an interactive map (Folium/Leaflet).
 
 Usage (from Windows PowerShell):
-  python plot_trips.py --host localhost --port 5432 --db taxi --user postgres --password postgres --limit 1000 --out trips_map.html
+  python plot_trips.py --host localhost --port 5432 --db taxi --user postgres --password YOUR_PASSWORD --limit 1000 --out trips_map.html
 
 If you are running this inside another Docker container on the same compose network, use --host db instead of localhost.
 """
 
 import argparse
 import json
+import os
 import sys
 from typing import List, Tuple
 
@@ -88,7 +89,7 @@ def main():
     ap.add_argument("--port", type=int, default=5432)
     ap.add_argument("--db", "--dbname", dest="dbname", default="taxi")
     ap.add_argument("--user", default="postgres")
-    ap.add_argument("--password", default="postgres")
+    ap.add_argument("--password", default=os.getenv("POSTGRES_PASSWORD", ""))
     ap.add_argument("--limit", type=int, default=1000, help="Number of trips to plot")
     ap.add_argument("--out", default="trips_map.html", help="Output HTML map filename")
     args = ap.parse_args()

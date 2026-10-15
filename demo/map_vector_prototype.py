@@ -1,3 +1,4 @@
+import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from flask import Flask, request, Response, render_template_string
@@ -11,7 +12,7 @@ CORS(app) # Allow our frontend to talk to this backend
 DB_CONFIG = {
     "dbname": "taxis_porto",
     "user": "postgres",
-    "password": "postgres",
+    "password": os.getenv("POSTGRES_PASSWORD", ""),
     "host": "127.0.0.1",
     "port": 5433
 }
